@@ -1,42 +1,81 @@
-Fluxo Assíncrono Completo
+Projeto: estoque-system
 
-1. FastAPI cria um registro de pedido e publica o evento:
-  {
-    "event": "order.created",
-    "order_id": 123,
-    "items": [
-      {"product_id": 10, "quantity": 2},
-      {"product_id": 11, "quantity": 1}
-    ]
-  }
+**Visão Geral**
+- **Descrição**: Serviço de exemplo que demonstra um fluxo assíncrono completo para processamento
+  de pedidos, reserva/baixa de estoque e notificações, usando FastAPI + RabbitMQ.
+- **Objetivo**: servir como base para entender integrações assíncronas entre API e workers.
 
-2. RabbitMQ entrega para o order_worker
-  Este worker:
-  - valida o pedido;
-  - bloqueia estoque (reserva);
-  - envia outro evento: stock.reserve.
+**Fluxo Assíncrono**
+1. A API (FastAPI) recebe um pedido e cria um registro, então publica um evento:
+   ```json
+   {
+     "event": "order.created",
+     "order_id": 123,
+     "items": [
+       {"product_id": 10, "quantity": 2},
+       {"product_id": 11, "quantity": 1}
+     ]
+   }
+   ```
+2. O `order_worker` consome `order.created`, valida o pedido, reserva estoque e publica `stock.reserve`.
+3. O `stock_worker` processa reservas/baixas, atualiza o inventário, cria movimentações e publica `order.processed`.
+4. O `notify_worker` envia notificações (e-mail) quando apropriado.
 
-3. stock_worker processa reserva ou baixa
-  Esse worker:
-  - atualiza estoque;
-  - gera uma movimentação de estoque;
-  - dispara evento order.processed.
+**Exchanges, Routing Keys e Filas**
+- **Exchange**: `stock_events` (tipo `topic`)
+- **Routing Keys**: `order.created`, `stock.reserve`, `stock.updated`, `order.processed`
+- **Filas**: `order_queue`, `stock_queue`, `notify_queue`
 
-4. notify_worker envia notificação(e-mail).
+**Estrutura do Projeto**
+- **API**: `app/main.py` e rotas em `app/api/routes/` (ex.: `orders.py`, `products.py`).
+- **Workers**: consumidores em `app/workers/` (`order_worker.py`, `stock_worker.py`, `notify_worker.py`, `payment_worker.py`).
+- **Serviços**: lógica de negócio em `app/services/`.
+- **Repositórios/Models/Schemas**: `app/models/`, `app/repositories/`, `app/schemas/`.
+- **Banco**: configurações e sessão em `app/db/` e migrações em `alembic/`.
 
---------------------------------------------------------------------------------------------
-Exchanges e Filas:
+**Pré-requisitos**
+- Python 3.10+ (confirmar em `requirements.txt`)
+- RabbitMQ (local ou remoto)
+- Banco de dados compatível (ex.: PostgreSQL) configurado via `DATABASE_URL`
 
-Exchange: 
-- stock_events (topic)
+**Variáveis de Ambiente Relevantes**
+- `DATABASE_URL`: URL de conexão com o banco de dados.
+- `RABBITMQ_URL`: URL de conexão com RabbitMQ (ex.: `amqp://guest:guest@localhost:5672/`).
+- `ENV` (opcional): `development` / `production`.
 
-Routing Keys:
-- order.created
-- stock.reserve
-- stock.updated
-- order.processed
+**Instalação e Execução Local (rápido)**
+1. Criar e ativar um ambiente virtual:
+   ```sh
+   python -m venv .venv
+   . .venv/bin/activate
+   ```
+2. Instalar dependências:
+   ```sh
+   pip install -r requirements.txt
+   ```
+3. Aplicar migrações (Alembic):
+   ```sh
+   alembic upgrade head
+   ```
+4. Rodar a API (desenvolvimento):
+   ```sh
+   uvicorn app.main:app --reload
+   ```
 
-Filas:
-- order_queue
-- stock_queue
-- notify_queue
+**Execução com Docker Compose**
+- Se quiser executar via `docker-compose` (se houver `docker-compose.yaml` configurado):
+  ```sh
+  docker-compose up --build
+  ```
+
+**Testes**
+- Executar testes com `pytest`:
+  ```sh
+  pytest
+  ```
+
+**Observações de Design**
+- O sistema usa eventos para desacoplar a API do processamento de pedidos e do estoque.
+- Workers são responsáveis por side-effects (reserva, movimentação de estoque, notificações).
+
+---
