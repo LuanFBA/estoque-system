@@ -79,6 +79,3 @@
 - Workers são responsáveis por side-effects (reserva, movimentação de estoque, notificações).
 
 ---
-
-Se precisar, posso adicionar exemplos de payloads de API, instruções Dockerfile/Docker Compose
-ou detalhar como executar cada worker individualmente.
