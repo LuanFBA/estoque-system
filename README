@@ -1,0 +1,42 @@
+Fluxo Assíncrono Completo
+
+1. FastAPI cria um registro de pedido e publica o evento:
+  {
+    "event": "order.created",
+    "order_id": 123,
+    "items": [
+      {"product_id": 10, "quantity": 2},
+      {"product_id": 11, "quantity": 1}
+    ]
+  }
+
+2. RabbitMQ entrega para o order_worker
+  Este worker:
+  - valida o pedido;
+  - bloqueia estoque (reserva);
+  - envia outro evento: stock.reserve.
+
+3. stock_worker processa reserva ou baixa
+  Esse worker:
+  - atualiza estoque;
+  - gera uma movimentação de estoque;
+  - dispara evento order.processed.
+
+4. notify_worker envia notificação(e-mail).
+
+--------------------------------------------------------------------------------------------
+Exchanges e Filas:
+
+Exchange: 
+- stock_events (topic)
+
+Routing Keys:
+- order.created
+- stock.reserve
+- stock.updated
+- order.processed
+
+Filas:
+- order_queue
+- stock_queue
+- notify_queue
