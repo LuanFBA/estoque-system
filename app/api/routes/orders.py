@@ -21,7 +21,7 @@ def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db)):
         created = create_order(db, items, order.email)
         return created
     except Exception as exc:
-        logger.exception("Failed to create order")
+        logger.exception("Erro ao criar pedido: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
