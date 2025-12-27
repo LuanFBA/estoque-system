@@ -1,5 +1,7 @@
 # Projeto: estoque-system
 
+[![codecov](https://codecov.io/gh/LuanFBA/estoque-system/branch/main/graph/badge.svg)](https://codecov.io/gh/LuanFBA/estoque-system)
+
 **Visão Geral**
 - **Descrição**: Serviço de exemplo que demonstra um fluxo assíncrono completo para processamento
   de pedidos, reserva/baixa de estoque e notificações, usando FastAPI + RabbitMQ.
