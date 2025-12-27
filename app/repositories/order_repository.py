@@ -3,8 +3,7 @@ from app.models.order import Order
 
 
 def create_order(db: Session, status: str = "pending") -> Order:
-    """Criar um pedido e retornar ele.
-    """
+    """Criar um pedido e retornar ele."""
     order = Order(status=status)
     try:
         db.add(order)
