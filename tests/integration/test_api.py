@@ -28,7 +28,7 @@ class TestOrdersAPI:
 
         response = client.post("/orders/", json=order_data)
 
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert "order_id" in data
         assert data["status"] == "pending"
@@ -91,7 +91,7 @@ class TestOrdersAPI:
 
         response = client.post("/orders/", json=order_data)
 
-        assert response.status_code == 200
+        assert response.status_code == 201
 
 
 class TestProductsAPI:

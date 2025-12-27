@@ -44,7 +44,9 @@ Sistema de Estoque
     return send_email(to, subject, body)
 
 
-def send_payment_failed_email(order_id: int, to: str, reason: str | None = None) -> bool:
+def send_payment_failed_email(
+    order_id: int, to: str, reason: str | None = None
+) -> bool:
     """Envia email avisando que o pagamento falhou."""
     subject = f"Pagamento do pedido #{order_id} falhou"
     body = f"""Olá!
