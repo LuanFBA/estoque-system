@@ -10,9 +10,13 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
     strategy:
       matrix:
-        python-version: ['3.11', '3.10']
+        python-version: ["3.10", "3.11"]
 
     steps:
       - name: Checkout repository
@@ -58,5 +62,5 @@ jobs:
           files: coverage.xml
           fail_ci_if_error: false
         env:
-          # If CODECOV_TOKEN is set in repository secrets it will be used; otherwise Codecov may still accept uploads for public repos
+          # Foi adicionado o covecov só para estudo, o token pode ser vazio
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
